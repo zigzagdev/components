@@ -97,4 +97,12 @@ describe('Button native attributes', () => {
     expect(mainClick).toHaveBeenCalled();
     expect(nativeClick).toHaveBeenCalled();
   });
+
+  test('calls native event handlers when there is no internal handler for the same event', () => {
+    const onFocus = jest.fn();
+    const { container } = render(<Button nativeButtonAttributes={{ onFocus }}>Button text</Button>);
+    const button = createWrapper(container).findButton()!.getElement();
+    expect(() => button.focus()).not.toThrow();
+    expect(onFocus).toHaveBeenCalledTimes(1);
+  });
 });

@@ -143,6 +143,37 @@ describe('WithNativeAttributes', () => {
     expect(restHandler).not.toHaveBeenCalled();
   });
 
+  test('uses native event handler when the internal handler is undefined', () => {
+    const nativeHandler = jest.fn();
+
+    const { container } = render(
+      <WithNativeAttributes
+        tag="button"
+        componentName="my-component"
+        onClick={undefined}
+        nativeAttributes={{ onClick: nativeHandler }}
+      >
+        Click me
+      </WithNativeAttributes>
+    );
+
+    const button = container.firstChild as HTMLButtonElement;
+    expect(() => button.click()).not.toThrow();
+    expect(nativeHandler).toHaveBeenCalledTimes(1);
+    expect(mockedWarnOnce).not.toHaveBeenCalled();
+  });
+
+  test('does not warn when overriding an attribute whose internal value is undefined', () => {
+    const { container } = render(
+      <WithNativeAttributes tag="div" componentName="my-component" id={undefined} nativeAttributes={{ id: 'my-id' }}>
+        Test content
+      </WithNativeAttributes>
+    );
+
+    expect(container.firstElementChild!.id).toBe('my-id');
+    expect(mockedWarnOnce).not.toHaveBeenCalled();
+  });
+
   test('overrides other attributes and shows warning', () => {
     const { container } = render(
       <WithNativeAttributes

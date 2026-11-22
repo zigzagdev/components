@@ -514,5 +514,11 @@ describe('Input', () => {
       expect(input).toHaveClass(styles.input);
       expect(input).toHaveClass('additional-class');
     });
+    it('calls native event handlers when there is no internal handler for the same event', () => {
+      const onKeyDown = jest.fn();
+      const { input } = renderInput({ nativeInputAttributes: { onKeyDown } });
+      expect(() => fireEvent.keyDown(input, { key: 'a' })).not.toThrow();
+      expect(onKeyDown).toHaveBeenCalledTimes(1);
+    });
   });
 });
