@@ -30,6 +30,8 @@ export function processAttributes<ET extends HTMLElement, AT extends React.HTMLA
 ) {
   return Object.entries(nativeAttributes || {}).reduce(
     (acc, [key, value]) => {
+      const restValue = (rest as any)[key];
+
       // concatenate className
       if (key === 'className') {
         acc[key] = clsx(rest.className, value);
@@ -39,17 +41,17 @@ export function processAttributes<ET extends HTMLElement, AT extends React.HTMLA
         acc[key] = { ...rest.style, ...value };
 
         // chain event handlers
-      } else if (key.match(/^on[A-Z]/) && typeof value === 'function' && key in rest) {
+      } else if (key.match(/^on[A-Z]/) && typeof value === 'function' && typeof restValue === 'function') {
         acc[key] = (event: Event) => {
           value(event);
           if (!event.defaultPrevented) {
-            (rest as any)[key](event);
+            restValue(event);
           }
         };
 
         // override other attributes, warning if it already exists
       } else {
-        if (key in rest && (!skipWarnings || (skipWarnings !== true && !skipWarnings.includes(key)))) {
+        if (restValue !== undefined && (!skipWarnings || (skipWarnings !== true && !skipWarnings.includes(key)))) {
           warnOnce(componentName, `Overriding native attribute [${key}] which has a Cloudscape-provided value`);
         }
         acc[key] = value;
